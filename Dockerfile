@@ -9,6 +9,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY ./mqtt2influx.py /mqtt2influx/
 
+ENV PYTHONUNBUFFERED TRUE
+
 ENV MQTTHOST broker
 ENV MQTTPORT 1883
 ENV MQTTNAME exporter

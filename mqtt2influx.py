@@ -106,9 +106,9 @@ def convert_message(topicMessage):
             value = float(topicMessage)
             logging.debug('Converted message to FLOAT: %f'% value)
         except:
-            if topicMessage.lower() in ['on']:
+            if topicMessage.lower() in ['on', 'true']:
                 value = 1
-            if topicMessage.lower() in ['off']:
+            if topicMessage.lower() in ['off', 'false']:
                 value = 0
             else:
                 return None
