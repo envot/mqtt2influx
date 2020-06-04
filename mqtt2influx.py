@@ -91,8 +91,7 @@ def on_disconnect(clientMQTT, userdata, rc):
 
 
 def topic_check(topicNameArray):
-    if not (topicNameArray[-1] == HOMIE_SET or
-        topicNameArray[-1][0] == '$'):
+    if topicNameArray[-1] == HOMIE_SET or topicNameArray[-1][0] == '$':
         return True
     return False
 
@@ -108,11 +107,11 @@ def convert_message(topicMessage):
         except:
             if topicMessage.lower() in ['on', 'true']:
                 value = 1
-            if topicMessage.lower() in ['off', 'false']:
+            elif topicMessage.lower() in ['off', 'false']:
                 value = 0
             else:
-                return None
                 logging.debug('Could not converted message.')
+                return None
             logging.debug('Converted message to INT: %i'% value)
     return value
 
@@ -122,7 +121,7 @@ def on_message(clientMQTT, userdata, message):
     topicMessage = message.payload.decode()
     topicNameArray = topicName.split('/')
     logging.debug('Received MQTT message: %s @ %s'% (topicMessage, topicName))
-    if not topic_check(topicNameArray):
+    if topic_check(topicNameArray):
         return False
     value = convert_message(topicMessage)
     if not value == None:
