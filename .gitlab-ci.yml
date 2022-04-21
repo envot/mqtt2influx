@@ -2,8 +2,7 @@ image: docker:latest
 
 stages:
   - build
-  - push_gitlab
-  - push_dockerhub
+  - push
 
 services:
   - docker:19.03.12-dind
@@ -20,8 +19,8 @@ Build:
     - docker push $CI_PROJECT_PATH:$CI_COMMIT_SHA
 
 
-Push latest gitlab:
-  stage: push_gitlab
+Push latest:
+  stage: push
   only:
     - master
   script:
@@ -33,8 +32,8 @@ Push latest gitlab:
     - docker tag $CI_PROJECT_PATH:$CI_COMMIT_SHA $CI_PROJECT_PATH:latest
     - docker push $CI_PROJECT_PATH:latest
 
-Push tag gitlab:
-  stage: push_gitlab
+Push tag:
+  stage: push
   only:
     - tags
   script:
