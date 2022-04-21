@@ -16,7 +16,7 @@ Build:
     - echo -n $CI_REGISTRY_PASSWORD | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_PROJECT_PATH:$CI_COMMIT_SHA
-    - echo -n $DOCKER_HUB_TOKEN | docker login -u "$DOCKER_HUB_USER" --password-stdin
+    - echo -n $DOCKER_HUB_TOKEN | docker login --username "$DOCKER_HUB_USER" --password-stdin
     - docker push $CI_PROJECT_PATH:$CI_COMMIT_SHA
 
 
@@ -29,7 +29,7 @@ Push latest gitlab:
     - echo -n $CI_REGISTRY_PASSWORD | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest
     - docker push $CI_REGISTRY_IMAGE:latest
-    - echo -n $DOCKER_HUB_TOKEN | docker login -u "$DOCKER_HUB_USER" --password-stdin
+    - echo -n $DOCKER_HUB_TOKEN | docker login --username "$DOCKER_HUB_USER" --password-stdin
     - docker tag $CI_PROJECT_PATH:$CI_COMMIT_SHA $CI_PROJECT_PATH:latest
     - docker push $CI_PROJECT_PATH:latest
 
@@ -42,6 +42,6 @@ Push tag gitlab:
     - echo -n $CI_REGISTRY_PASSWORD | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
-    - echo -n $DOCKER_HUB_TOKEN | docker login -u "$DOCKER_HUB_USER" --password-stdin
+    - echo -n $DOCKER_HUB_TOKEN | docker login --username "$DOCKER_HUB_USER" --password-stdin
     - docker tag $CI_PROJECT_PATH:$CI_COMMIT_SHA $CI_PROJECT_PATH:$CI_COMMIT_REF_NAME
     - docker push $CI_PROJECT_PATH:$CI_COMMIT_REF_NAME
