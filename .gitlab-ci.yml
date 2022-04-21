@@ -2,13 +2,11 @@ image: docker:latest
 
 stages:
   - build
-  - push
+  - push_gitlab
+  - push_dockerhub
 
 services:
   - docker:19.03.12-dind
-
-before_script:
-  - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
 
 Build:
   stage: build
@@ -19,20 +17,44 @@ Build:
 
 # Tag the "master" branch as "latest"
 Push latest:
-  stage: push
+  stage: push_gitlab
   only:
     - master
   script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest
     - docker push $CI_REGISTRY_IMAGE:latest
 
 # Docker tag any Git tag
 Push tag:
-  stage: push
+  stage: push_gitlab
   only:
     - tags
   script:
+    - docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_TOKEN"
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+
+# Tag the "master" branch as "latest"
+Push latest:
+  stage: push_gitlab
+  only:
+    - master
+  script:
+    - docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_TOKEN"
+    - docker pull $CI_PROJECT_PATH:$CI_COMMIT_SHA
+    - docker tag $CI_PROJECT_PATH:$CI_COMMIT_SHA $CI_PROJECT_PATH:latest
+    - docker push $CI_PROJECT_PATH:latest
+
+# Docker tag any Git tag
+Push tag:
+  stage: push_gitlab
+  only:
+    - tags
+  script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker pull $CI_PROJECT_PATH:$CI_COMMIT_SHA
+    - docker tag $CI_PROJECT_PATH:$CI_COMMIT_SHA $CI_PROJECT_PATH:$CI_COMMIT_REF_NAME
+    - docker push $CI_PROJECT_PATH:$CI_COMMIT_REF_NAME
