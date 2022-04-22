@@ -10,7 +10,8 @@ import signal
 import logging 
 
 import paho.mqtt.client as mqttClient
-from influxdb import InfluxDBClient 
+from influxdb_client import InfluxDBClient, Point
+from influxdb_client.client.write_api import SYNCHRONOUS
 
 
 HOMIE_SET = "set"
@@ -22,9 +23,9 @@ parser.add_argument('-MQTTname', type=str, help='Connection name at MQTT broker.
 
 parser.add_argument('-DBhost', type=str, help='Host of InfluxDB. STR Default: "localhost"')
 parser.add_argument('-DBport', type=str, help='Port of InfluxDB. INT Default: 8086')
-parser.add_argument('-DBdatabase', type=str, help='Database of InfluxDB. INT Default: monitoring')
-parser.add_argument('-DBuser', type=str, help='User of InfluxDB. INT Default: user')
-parser.add_argument('-DBpassword', type=str, help='Password for user of InfluxDB. INT Default: password')
+parser.add_argument('-DBorg', type=str, help='Organization of InfluxDB. INT Default: org')
+parser.add_argument('-DBbucket', type=str, help='Bucket of InfluxDB. INT Default: bucket')
+parser.add_argument('-DBtoken', type=str, help='Token for InfluxDB. INT Default: token')
 
 parser.add_argument('-LogLevel', type=str, help='Log leveel. Str Default: INFO')
 args = parser.parse_args()
@@ -33,12 +34,12 @@ if args.DBhost == None:
     args.DBhost = "localhost"
 if args.DBport == None:
     args.DBport = 8086
-if args.DBdatabase == None:
-    args.DBdatabase = 'monitoring'
-if args.DBuser == None:
-    args.DBduser = 'user'
-if args.DBpassword == None:
-    args.DBdpassword = 'password' 
+if args.DBorg == None:
+    args.DBorg = 'org'
+if args.DBbucket == None:
+    args.DBbucket = 'bucket'
+if args.DBtoken == None:
+    args.DBtoken = 'token' 
 
 if args.LogLevel== None:
     args.LogLevel = 'INFO' 
@@ -55,17 +56,16 @@ logger = logging.getLogger(__name__)
 logging.debug('Started MQTT2InfluxDB.')
 
 clientDB = InfluxDBClient(               
-            host=args.DBhost,
-            port=int(args.DBport),
-            username=args.DBuser,
-            password=args.DBpassword,
-            database=args.DBdatabase,
-            timeout = 1)
+            url="http://"+args.DBhost+":"+str(args.DBport),
+            token=args.DBtoken,
+            org=args.DBorg)
 
-def sendSingle(deviceName, topic, value):
-    json_body = [{ "measurement": str(deviceName), "fields" : {str(topic): float(value)}}]
-    logging.debug('Write to InfluxDB: %s'% json_body)
-    clientDB.write_points(json_body)
+write_api = clientDB.write_api(write_options=SYNCHRONOUS)
+
+def sendSingle(device, name, topic, value):
+    p = Point(device).tag("Name", name).field(topic, float(value))
+    logging.debug('Write to InfluxDB: %s'% p)
+    write_api.write(bucket=args.DBbucket, record=p)
 
 
 if args.MQTThost == None:
@@ -125,9 +125,10 @@ def on_message(clientMQTT, userdata, message):
         return False
     value = convert_message(topicMessage)
     if not value == None:
-        deviceName = '/'.join(topicNameArray[:2])
+        device = topicNameArray[0]
+        name = topicNameArray[1]
         topic = '/'.join(topicNameArray[2:])
-        sendSingle(deviceName, topic, value)
+        sendSingle(device, name, topic, value)
 
 
 logging.debug('Connecting to MQTT Broker to %s:%s...'% (args.MQTThost, str(args.MQTTport)))

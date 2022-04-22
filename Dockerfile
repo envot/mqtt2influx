@@ -1,4 +1,4 @@
-FROM python:3.7.7-alpine3.11
+FROM python:3.9.12-alpine3.15
 
 MAINTAINER Klemens Schueppert "schueppi@envot.net"
 
@@ -17,12 +17,12 @@ ENV MQTTNAME exporter
 
 ENV DBHOST database
 ENV DBPORT 8086
-ENV DBDATABASE monitoring
-ENV DBUSER user
-ENV DBPASSWORD password
+ENV DBORG org
+ENV DBBUCKET bucket
+ENV DBTOKEN token
 ENV LOGLEVEL INFO
 
 ENTRYPOINT python mqtt2influx.py -MQTThost $MQTTHOST -MQTTport $MQTTPORT -MQTTname $MQTTNAME \
             -DBhost $DBHOST -DBport $DBPORT \
-            -DBdatabase $DBDATABASE -DBuser $DBUSER -DBpassword $DBPASSWORD \
+            -DBorg $DBORG -DBbucket $DBBUCKET -DBdatabase $DBDATABASE -DBtoken $DBTOKEN \
             -LogLevel $LOGLEVEL
