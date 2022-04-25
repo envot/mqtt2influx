@@ -24,5 +24,5 @@ ENV LOGLEVEL INFO
 
 ENTRYPOINT python mqtt2influx.py -MQTThost $MQTTHOST -MQTTport $MQTTPORT -MQTTname $MQTTNAME \
             -DBhost $DBHOST -DBport $DBPORT \
-            -DBorg $DBORG -DBbucket $DBBUCKET -DBdatabase $DBDATABASE -DBtoken $DBTOKEN \
+            -DBorg $DBORG -DBbucket $DBBUCKET -DBtoken $DBTOKEN \
             -LogLevel $LOGLEVEL
